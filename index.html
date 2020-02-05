@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="keywords" content="">
+  <title>IQ Онлайн Тест</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link
+    href="https://fonts.googleapis.com/css?family=Roboto+Condensed:400,700|Roboto:400,700&display=swap&subset=cyrillic"
+    rel="stylesheet">
+
+</head>
+
+<body>
+  <header class="main-header">
+    <div class="button-wrapper">
+      <button class="button">Добавить</button>
+      <button class="button">Обновить</button>
+    </div>
+    <form>
+      <input class="search-form" type="text" placeholder="Событие, дата или участник">
+    </form>
+  </header>
+
+  <main class="main-container">
+    <section class="date-container">
+      <button class="nav-button prev"></button>
+      <div class="month-selection">Март 2013</div>
+      <button class="nav-button next"></button>
+      <button class="nav-button return">Сегодня</button>
+    </section>
+    <div class="calendar-wrapper">
+    </div>
+  </main>
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+
+  <script>
+    $(document).ready(function () {
+
+      var Calendar = function (date) {
+        this.Today = new Date();
+
+        this.Selected = this.Today;
+        this.Today.Month = this.Today.getMonth();
+        this.Today.Year = this.Today.getFullYear();
+        if (date) { this.Selected = date }
+        this.Selected.Month = this.Selected.getMonth();
+        this.Selected.Year = this.Selected.getFullYear();
+        this.Selected.Days = new Date(this.Selected.Year, (this.Selected.Month + 1), 0).getDate();
+        this.Selected.FirstDay = new Date(this.Selected.Year, (this.Selected.Month), 1).getDay();
+        this.Selected.LastDay = new Date(this.Selected.Year, (this.Selected.Month + 1), 0).getDay();
+        this.Prev = new Date(this.Selected.Year, (this.Selected.Month - 1), 1);
+        if (this.Selected.Month == 0) { this.Prev = new Date(this.Selected.Year - 1, 11, 1); }
+        this.Prev.Days = new Date(this.Prev.getFullYear(), (this.Prev.getMonth() + 1), 0).getDate();
+      };
+      var date = new Date();
+      var calendar = new Calendar(date);
+
+      var changed_date = date;
+      var changed_cal = calendar;
+
+      var months = ["Январь", "Февраль", "Март", "Апрель",
+        "Май", "Июнь", "Июль", "Август", "Сентябрь",
+        "Октябрь", "Ноябрь", "Декабрь"];
+
+      var day_names = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресение"];
+      function createShell(day) {
+        var calendarItem = document.createElement("div");
+        var calendarDay = document.createTextNode(String(day));
+        calendarItem.appendChild(calendarDay);
+        return calendarItem;
+      }
+
+      function buildCalendar(cal) {
+
+        $(".calendar-wrapper").empty();
+        $(".month-selection").text(months[cal.Selected.Month] + " " + String(cal.Selected.Year));
+        let extraDays = 0;
+        var fd = cal.Selected.FirstDay;
+        if (fd == 0) {
+          fd = 7;
+        }
+        for (let i = cal.Prev.Days - (fd - 2); i <= cal.Prev.Days; i++) {
+          $(".calendar-wrapper").append(createShell(i));
+          extraDays++;
+        } //заполнение днями предыдущего месяца 
+        for (let j = 1; j <= cal.Selected.Days; j++) {
+
+          $(".calendar-wrapper").append(createShell(j));
+          if (j - (fd - 2) == cal.Today.getDate() && cal.Selected.Month == calendar.Today.Month && cal.Selected.Year == calendar.Today.Year) {
+            console.log(j);
+            var currday = document.querySelectorAll(".calendar-wrapper > div");
+            currday[j].className += "current-day";
+          }
+          extraDays++;
+        }
+
+
+        extraDays = 42 - extraDays;
+        for (let k = 1; k <= extraDays; k++) {
+          $(".calendar-wrapper").append(createShell(k));
+        }
+        var names = document.querySelectorAll(".calendar-wrapper > div");
+        for (let n = 0; n < 7; n++) {
+          textNode =
+            names[n].prepend(String(day_names[n] + ", "));
+        }
+      }
+
+      function change(str, cal) {
+        var next_month = cal.Selected.Month;
+        var next_year = cal.Selected.Year;
+        if (str == "prev") {
+          if (cal.Selected.Month > 0) {
+            next_month -= 1;
+          }
+          else {
+            next_month += 11;
+            next_year -= 1;
+          }
+        }
+
+        if (str == "next") {
+          if (cal.Selected.Month < 11) {
+            next_month += 1;
+
+          }
+          else {
+            next_month -= 11;
+            next_year += 1;
+          }
+        }
+        if (str == "return") {
+          next_month = date.getMonth();
+          next_year = date.getFullYear();
+        }
+        changed_date = new Date(next_year, next_month);
+        changed_cal = new Calendar(changed_date);
+        buildCalendar(changed_cal);
+        console.log(changed_cal.Selected.Year);
+        console.log(changed_cal.Selected.Month);
+      }
+
+
+      buildCalendar(calendar);
+      $(".next").click(function () { change("next", changed_cal) });
+      $(".prev").click(function () { change("prev", changed_cal) });
+      $(".return").click(function () { change("return", changed_cal) });
+    });
+
+
+
+  </script>
+
+</body>
+
+</html>
