@@ -15,7 +15,7 @@
 <body>
   <header class="main-header">
     <div class="button-wrapper">
-      <button class="button">Добавить</button>
+      <button class="button add">Добавить</button>
       <button class="button">Обновить</button>
     </div>
     <form>
@@ -32,7 +32,17 @@
     </section>
     <div class="calendar-wrapper">
     </div>
+    <div class="add-form-wrapper">
+      <form class="add-form">
+        <input class="add-event" type="text" placeholder="dd.mm.yyyy, день рождения">
+        <input class="add-form-button" type="submit" value="Создать">
+      </form>
+    </div>
   </main>
+
+
+
+
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"
     integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 
@@ -57,7 +67,8 @@
       };
       var date = new Date();
       var calendar = new Calendar(date);
-
+      var Events = [];
+      var Discr = [];
       var changed_date = date;
       var changed_cal = calendar;
 
@@ -72,7 +83,11 @@
         calendarItem.appendChild(calendarDay);
         return calendarItem;
       }
-
+      function newEvent(date, discr) {
+        Events.push(date);
+        Discr.push(discr);
+        buildCalendar(changed_cal);
+      }
       function buildCalendar(cal) {
 
         $(".calendar-wrapper").empty();
@@ -95,9 +110,8 @@
             currday[j].className += "current-day";
           }
           extraDays++;
+
         }
-
-
         extraDays = 42 - extraDays;
         for (let k = 1; k <= extraDays; k++) {
           $(".calendar-wrapper").append(createShell(k));
@@ -148,6 +162,38 @@
       $(".next").click(function () { change("next", changed_cal) });
       $(".prev").click(function () { change("prev", changed_cal) });
       $(".return").click(function () { change("return", changed_cal) });
+      $(".add").click(function (e) {
+        var posX = e.pageX - 30, posY = e.pageY + 10;
+        $(".add-form-wrapper").css({ left: posX, top: posY })
+        $(".add-form-wrapper").css("display", "block");
+      });
+      $(document).click(function (event) {
+
+        if (!$(event.target).is(".add-form-wrapper") &&
+          !$(event.target).is(".add-form-wrapper>form") &&
+          !$(event.target).is(".add-form") &&
+          !$(event.target).is(".add") &&
+          $(".add-form-wrapper").css("display") == "block") {
+
+          $(".add-form-wrapper").css("display", "none");
+        }
+      });
+      $("add-form-wrapper>form").submit(function (e) {
+        e.preventDefault();
+        if ($("add-event").val() == "") {
+          alert("Пустое поле!");
+          break;
+        }
+        //11.11.1111, 
+        let str = $("add-event").val();
+        var _date = str.slice(0, 10);
+        var _day = str.slice(0, 2);
+        var _month = str.slice(4, 6);
+        var _year = str.slice(7, 11);
+        var _text = str.slice(12);
+        var Event = new Date(_year, _month, _day);
+        newEvent(Event, _text);
+      })
     });
 
 
